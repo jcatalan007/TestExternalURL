@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController1.h"
 
 @interface AppDelegate ()
 
@@ -18,6 +19,38 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    
+    // myawesomeapp://?action=my_action_1&sourceurl=http%3A%2F%2Fwww.mywebsite.com%2Fmypage.html%23mytag
+    
+    if ([[url scheme] isEqualToString:@"myawesomeapp"]) {
+        
+        // Get a dictionary with the query items from the external url
+        NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+        NSArray *queryItemsArray = [urlComponents queryItems];
+        NSMutableDictionary *queryItems = [NSMutableDictionary dictionary];
+        for (NSURLQueryItem *item in queryItemsArray) {
+            [queryItems setObject:item.value forKey:item.name];
+        }
+        
+        if ([[queryItems valueForKey:@"action"] isEqualToString:@"my_action_1"]) {
+            // code to call your view controller for my_action_1
+            NSURL *sourceURL = [NSURL URLWithString:[queryItems objectForKey:@"sourceurl"]];
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            ViewController1 *controller = [storyboard instantiateViewControllerWithIdentifier:@"ViewController1"];
+            controller.sourceURL = sourceURL;
+            [(UINavigationController *)self.window.rootViewController pushViewController:controller animated:YES];
+            return YES;
+            
+        } else if ([[queryItems valueForKey:@"action"] isEqualToString:@"my_action_2"]) {
+            // code to call the view controller for my_action_2
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
